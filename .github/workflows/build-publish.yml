@@ -2,71 +2,21 @@ name: Build and publish Docker image
 
 on:
   workflow_dispatch:
-    inputs:
-      SSGO_VERSION:
-        description: "Version of shadowsocks-go. If empty, the latest version will be used."
-        required: false
-        type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v3
         with:
           image: tonistiigi/binfmt:qemu-v7.0.0
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log into GitHub Container Registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get shadowsocks-go version
-        id: get-ssgo-version
-        run: |
-          if [ -z "${{ github.event.inputs.SSGO_VERSION }}" ]; then
-            echo "SSGO_VERSION=$(curl -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -s https://api.github.com/repos/database64128/shadowsocks-go/releases/latest | jq -r '.tag_name' | cut -c 2-)" >> "$GITHUB_OUTPUT"
-          else
-            echo "SSGO_VERSION=${{ github.event.inputs.SSGO_VERSION }}" >> "$GITHUB_OUTPUT"
-          fi
-
-      # shadowsocks-go version must be <number>.<number>.<number>
-      - name: Verify shadowsocks-go version
-        id: verify-ssgo-version
-        run: |
-          if [[ ! "${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid shadowsocks-go version: ${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}"
-            exit 1
-          fi
-
-      - name: Get WARP client version
-        id: get-warp-client-version
-        run: |
-          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
-          sudo apt-get update
-          echo "WARP_VERSION=$(apt-cache show cloudflare-warp | grep '^Version:' | awk '{print $2}' | sed 's/-[0-9]*$//')" >> "$GITHUB_OUTPUT"
-
       - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          build-args: |
-            SSGO_VERSION=${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}
-            WARP_VERSION=${{ steps.get-warp-client-version.outputs.WARP_VERSION }}
-            COMMIT_SHA=${{ github.sha }}
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}
-            ghcr.io/${{ github.repository }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}-${{ github.sha }}
+        run: |
+          make publish IMAGE=ghcr.io/${{ github.repository }} TAG=${{ github.sha }}

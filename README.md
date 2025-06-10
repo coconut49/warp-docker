@@ -2,12 +2,11 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/caomingjun/warp)](https://hub.docker.com/r/caomingjun/warp)
 ![WARP version in latest image](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.caomingjun.com%2Fdockerhub-label%3Frepo%3Dcaomingjun%2Fwarp%26label%3DWARP_VERSION%26display%3DWARP%2520in%2520image)
-![shadowsocks-go version in latest image](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.caomingjun.com%2Fdockerhub-label%3Frepo%3Dcaomingjun%2Fwarp%26label%3DSSGO_VERSION%26display%3Dshadowsocks-go%2520in%2520image)
 
 Run official [Cloudflare WARP](https://1.1.1.1/) client in Docker.
 
 > [!NOTE]
-> Cannot guarantee that the [shadowsocks-go](https://github.com/database64128/shadowsocks-go) and WARP client contained in the image are the latest versions. If necessary, please [build your own image](#build).
+> Cannot guarantee that the [shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust) and WARP client contained in the image are the latest versions. If necessary, please [build your own image](#build).
 
 ## Usage
 
@@ -63,7 +62,7 @@ You can configure the container through the following environment variables:
 
 - `WARP_SLEEP`: The time to wait for the WARP daemon to start, in seconds. The default is 2 seconds. If the time is too short, it may cause the WARP daemon to not start before using the proxy, resulting in the proxy not working properly. If the time is too long, it may cause the container to take too long to start. If your server has poor performance, you can increase this value appropriately.
 - `WARP_LICENSE_KEY`: The license key of the WARP client, which is optional. If you have subscribed to WARP+ service, you can fill in the key in this environment variable. If you have not subscribed to WARP+ service, you can ignore this environment variable.
-- `SSGO_ARGS`: The arguments passed to shadowsocks-go. The default is `--confPath /etc/shadowsocks-go/config.json`, which provides HTTP and SOCKS5 proxy on port 1080. If you need to change the port or use advanced features, mount your own config file and modify this parameter. See the [shadowsocks-go documentation](https://github.com/database64128/shadowsocks-go) for details. If you modify the port number, you may also need to adjust the port mapping in `docker-compose.yml`.
+- `SSR_ARGS`: The arguments passed to ssserver. The default is `--config /etc/shadowsocks-rust/config.json`, which provides HTTP and SOCKS5 proxy on port 1080. If you need to change the port or use advanced features, mount your own config file and modify this parameter. See the [shadowsocks-rust documentation](https://github.com/shadowsocks/shadowsocks-rust) for details. If you modify the port number, you may also need to adjust the port mapping in `docker-compose.yml`.
 - `REGISTER_WHEN_MDM_EXISTS`: If set, will register consumer account (WARP or WARP+, in contrast to Zero Trust) even when `mdm.xml` exists. You usually don't need this, as `mdm.xml` are usually used for Zero Trust. However, some users may want to adjust advanced settings in `mdm.xml` while still using consumer account.
 - `BETA_FIX_HOST_CONNECTIVITY`: If set, will add checks for host connectivity into healthchecks and automatically fix it if necessary. See [host connectivity issue](docs/host-connectivity.md) for more information.
 - `WARP_ENABLE_NAT`: If set, will work as warp mode and turn NAT on. You can route L3 traffic through `warp-docker` to Warp. See [nat gateway](docs/nat-gateway.md) for more information.
@@ -72,34 +71,25 @@ Data persistence: Use the host volume `./data` to persist the data of the WARP c
 
 For advanced usage or configurations, see [documentation](docs/README.md).
 
-### Use other versions
-
-The tag of docker image is in the format of `{WARP_VERSION}-{SSGO_VERSION}`, for example, `2023.10.120-1.14.0` means that the WARP client version is `2023.10.120` and the shadowsocks-go version is `1.14.0`. If you want to use other versions, you can specify the tag in the `docker-compose.yml`.
-
-You can also use the `latest` tag to use the latest version of the image.
-
-> [!NOTE]
-> You can access the image built by a certain commit by using the tag `{WARP_VERSION}-{SSGO_VERSION}-{COMMIT_SHA}`. Not all commits have images built.
-
-> [!NOTE]
-> Not all version combinations are available. Check the list of tags in the GitHub Container Registry before you use one. If the version you want is not available, you can [build your own image](#build).
-
 ## Build
 
-You can use GitHub Actions to build the image yourself.
+You can build the image locally with `make`:
 
-1. Fork this repository.
-2. Manually trigger the workflow `Build and push image` in the **Actions** tab.
+```bash
+make build IMAGE=yourname/warp
+```
 
-The workflow will build the image with the latest version of the WARP client and shadowsocks-go and push it to your fork's GitHub Container Registry. You can also specify the version of shadowsocks-go by providing input to the workflow. Building with a custom WARP client version is not supported yet.
+GitHub Actions uses the same Makefile. The workflow `Build and publish Docker image` simply runs:
 
-If you want to build the image locally, you can use [`.github/workflows/build-publish.yml`](.github/workflows/build-publish.yml) as a reference.
+```bash
+make publish IMAGE=ghcr.io/\${{ github.repository }} TAG=\${{ github.sha }}
+```
 
 ## Common problems
 
 ### Proxying UDP or even ICMP traffic
 
-The default `SSGO_ARGS` uses `/etc/shadowsocks-go/config.json`, which provides HTTP and SOCKS5 proxy on port 1080. If you want to proxy UDP or even ICMP traffic or change the port, edit the config file and set `SSGO_ARGS` accordingly. See the [shadowsocks-go documentation](https://github.com/database64128/shadowsocks-go) for more information. If you modify the port number, you may also need to modify the port mapping in the `docker-compose.yml`.
+The default `SSR_ARGS` uses `/etc/shadowsocks-rust/config.json`, which provides HTTP and SOCKS5 proxy on port 1080. If you want to proxy UDP or even ICMP traffic or change the port, edit the config file and set `SSR_ARGS` accordingly. See the [shadowsocks-rust documentation](https://github.com/shadowsocks/shadowsocks-rust) for more information. If you modify the port number, you may also need to modify the port mapping in the `docker-compose.yml`.
 
 ### How to connect from another container
 
