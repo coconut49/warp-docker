@@ -21,8 +21,22 @@ sudo dbus-daemon --config-file=/usr/share/dbus-1/system.conf
 # start the daemon
 sudo warp-svc --accept-tos &
 
-# sleep to wait for the daemon to start, default 2 seconds
-sleep "$WARP_SLEEP"
+# wait for the daemon to start with retry mechanism
+echo "Waiting for WARP daemon to start..."
+for i in $(seq 1 30); do
+    if warp-cli --accept-tos status >/dev/null 2>&1; then
+        echo "WARP daemon started successfully!"
+        break
+    fi
+    echo "Waiting for daemon... ($i/30)"
+    sleep "$WARP_SLEEP"
+done
+
+# final check if daemon is ready
+if ! warp-cli --accept-tos status >/dev/null 2>&1; then
+    echo "ERROR: WARP daemon failed to start after 30 attempts"
+    exit 1
+fi
 
 # if /var/lib/cloudflare-warp/reg.json not exists, setup new warp client
 if [ ! -f /var/lib/cloudflare-warp/reg.json ]; then
