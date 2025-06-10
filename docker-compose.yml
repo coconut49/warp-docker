@@ -1,6 +1,6 @@
 services:
   warp:
-    image: caomingjun/warp
+    image: ghcr.io/coconut49/warp-docker
     container_name: warp
     restart: always
     # add removed rule back (https://github.com/opencontainers/runc/pull/3468)
