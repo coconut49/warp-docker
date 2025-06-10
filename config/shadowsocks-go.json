@@ -1,0 +1,25 @@
+{
+    "servers": [
+        {
+            "name": "socks5",
+            "protocol": "socks5",
+            "tcpListeners": [
+                {"network": "tcp", "address": ":1080", "reusePort": true}
+            ],
+            "udpListeners": [
+                {"network": "udp", "address": ":1080", "reusePort": true}
+            ]
+        },
+        {
+            "name": "http",
+            "protocol": "http",
+            "tcpListeners": [
+                {"network": "tcp", "address": ":1080", "reusePort": true}
+            ]
+        }
+    ],
+    "router": {
+        "defaultTCPClientName": "direct",
+        "defaultUDPClientName": "direct"
+    }
+}
