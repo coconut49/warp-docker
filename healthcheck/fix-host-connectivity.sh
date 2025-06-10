@@ -52,3 +52,18 @@ for network in $networks; do
     sudo ip rule add to $network lookup main priority 10
   fi
 done
+
+# also ensure packets sourced from our non-WARP interfaces use table main
+addresses=$(ip --json address | jq -r '
+  .[] |
+  select((.ifname != "lo") and (.ifname != "CloudflareWARP")) |
+  .addr_info[] |
+  select(.family == "inet") |
+  "\(.local)/\(.prefixlen)"')
+
+for addr in $addresses; do
+  if ! ip rule list | grep -q "from $addr lookup main"; then
+    echo "[fix-host-connectivity] Adding source routing rule for $addr."
+    sudo ip rule add from $addr lookup main priority 10
+  fi
+done

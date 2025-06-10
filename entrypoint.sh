@@ -105,5 +105,10 @@ if [ -n "$WARP_ENABLE_NAT" ]; then
     sudo nft add rule ip6 mangle forward tcp flags syn tcp option maxseg size set rt mtu
 fi
 
+# run host connectivity fix once if enabled
+if [ -n "$BETA_FIX_HOST_CONNECTIVITY" ]; then
+    /healthcheck/fix-host-connectivity.sh
+fi
+
 # start the proxy
 ssserver $SSR_ARGS
