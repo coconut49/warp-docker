@@ -7,7 +7,8 @@ services:
     device_cgroup_rules:
       - 'c 10:200 rwm'
     ports:
-      - "1080:1080"
+      - "1080:1080/tcp"
+      - "1080:1080/udp"
     environment:
       - WARP_SLEEP=2
       # - WARP_LICENSE_KEY= # optional

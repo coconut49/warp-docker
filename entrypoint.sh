@@ -17,7 +17,7 @@ fi
 
 # Replace environment variables in shadowsocks config
 envsubst < /etc/shadowsocks-rust/config.json > /tmp/config.json.tmp
-mv /tmp/config.json.tmp /etc/shadowsocks-rust/config.json
+sudo mv /tmp/config.json.tmp /etc/shadowsocks-rust/config.json
 
 # create a tun device if not exist
 # allow passing device to ensure compatibility with Podman
