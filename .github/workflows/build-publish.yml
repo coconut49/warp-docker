@@ -23,12 +23,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log into registry ${{ vars.REGISTRY }}
+      - name: Log into GitHub Container Registry
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
-          registry: ${{ vars.REGISTRY }}
-          username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get shadowsocks-go version
         id: get-ssgo-version
@@ -67,6 +67,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}:latest
-            ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}
-            ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}-${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}
+            ghcr.io/${{ github.repository }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}-${{ github.sha }}
