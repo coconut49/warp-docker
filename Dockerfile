@@ -5,8 +5,7 @@ FROM ubuntu:22.04 AS base
 LABEL org.opencontainers.image.authors="cmj2002"
 LABEL org.opencontainers.image.url="https://github.com/cmj2002/warp-docker"
 
-COPY entrypoint.sh /entrypoint.sh
-COPY ./healthcheck /healthcheck
+
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
@@ -16,12 +15,14 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y cloudflare-warp && \
     apt-get clean && apt-get autoremove -y && \
-    chmod +x /entrypoint.sh && \
-    chmod +x /healthcheck/index.sh && \
+
     useradd -m -s /bin/bash warp && \
     echo "warp ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/warp
 
 USER warp
+
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
+COPY --chmod=755 ./healthcheck /healthcheck
 
 RUN mkdir -p /home/warp/.local/share/warp && echo -n 'yes' > /home/warp/.local/share/warp/accepted-tos.txt
 
@@ -31,6 +32,8 @@ ENV REGISTER_WHEN_MDM_EXISTS=
 ENV WARP_LICENSE_KEY=
 ENV BETA_FIX_HOST_CONNECTIVITY=
 ENV WARP_ENABLE_NAT=
+ENV SHADOWSOCKS_METHOD=2022-blake3-aes-128-gcm
+ENV SHADOWSOCKS_PASSWORD=
 
 FROM ${SSSERVER_IMAGE} AS ssserver
 
