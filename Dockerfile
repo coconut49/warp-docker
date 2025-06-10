@@ -1,3 +1,5 @@
+ARG SSSERVER_IMAGE=ghcr.io/shadowsocks/ssserver-rust:latest
+
 FROM ubuntu:22.04 AS base
 
 LABEL org.opencontainers.image.authors="cmj2002"
@@ -30,7 +32,6 @@ ENV WARP_LICENSE_KEY=
 ENV BETA_FIX_HOST_CONNECTIVITY=
 ENV WARP_ENABLE_NAT=
 
-ARG SSSERVER_IMAGE=ghcr.io/shadowsocks/ssserver-rust:latest
 FROM ${SSSERVER_IMAGE} AS ssserver
 
 FROM base
