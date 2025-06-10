@@ -31,6 +31,8 @@ services:
       - WARP_SLEEP=2
       # - WARP_LICENSE_KEY= # optional
       # - WARP_ENABLE_NAT=1 # enable nat
+      # - SHADOWSOCKS_PASSWORD= # optional, random password will be generated if not set
+      # - SHADOWSOCKS_METHOD=2022-blake3-aes-128-gcm # optional, default method if not set
     cap_add:
       # Docker already have them, these are for podman users
       - MKNOD
@@ -62,6 +64,8 @@ You can configure the container through the following environment variables:
 
 - `WARP_SLEEP`: The time to wait for the WARP daemon to start, in seconds. The default is 2 seconds. If the time is too short, it may cause the WARP daemon to not start before using the proxy, resulting in the proxy not working properly. If the time is too long, it may cause the container to take too long to start. If your server has poor performance, you can increase this value appropriately.
 - `WARP_LICENSE_KEY`: The license key of the WARP client, which is optional. If you have subscribed to WARP+ service, you can fill in the key in this environment variable. If you have not subscribed to WARP+ service, you can ignore this environment variable.
+- `SHADOWSOCKS_PASSWORD`: The password for shadowsocks-rust server, which is optional. If not set, a random password will be automatically generated at startup. This avoids hardcoding passwords in the container image while maintaining security.
+- `SHADOWSOCKS_METHOD`: The encryption method for shadowsocks-rust server, which is optional. The default is `2022-blake3-aes-128-gcm`. You can change this to other supported methods like `chacha20-ietf-poly1305`, `aes-256-gcm`, etc.
 - `SSR_ARGS`: The arguments passed to ssserver. The default is `--config /etc/shadowsocks-rust/config.json`, which provides HTTP and SOCKS5 proxy on port 1080. If you need to change the port or use advanced features, mount your own config file and modify this parameter. See the [shadowsocks-rust documentation](https://github.com/shadowsocks/shadowsocks-rust) for details. If you modify the port number, you may also need to adjust the port mapping in `docker-compose.yml`.
 - `REGISTER_WHEN_MDM_EXISTS`: If set, will register consumer account (WARP or WARP+, in contrast to Zero Trust) even when `mdm.xml` exists. You usually don't need this, as `mdm.xml` are usually used for Zero Trust. However, some users may want to adjust advanced settings in `mdm.xml` while still using consumer account.
 - `BETA_FIX_HOST_CONNECTIVITY`: If set, will add checks for host connectivity into healthchecks and automatically fix it if necessary. See [host connectivity issue](docs/host-connectivity.md) for more information.

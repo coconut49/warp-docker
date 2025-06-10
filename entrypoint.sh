@@ -3,6 +3,22 @@
 # exit when any command fails
 set -e
 
+# Generate random password if not provided
+if [ -z "$SHADOWSOCKS_PASSWORD" ]; then
+    SHADOWSOCKS_PASSWORD=$(openssl rand -base64 16)
+    echo "Generated random shadowsocks password: $SHADOWSOCKS_PASSWORD"
+fi
+
+# Set default method if not provided
+if [ -z "$SHADOWSOCKS_METHOD" ]; then
+    SHADOWSOCKS_METHOD="2022-blake3-aes-128-gcm"
+    echo "Using default shadowsocks method: $SHADOWSOCKS_METHOD"
+fi
+
+# Replace environment variables in shadowsocks config
+envsubst < /etc/shadowsocks-rust/config.json > /tmp/config.json.tmp
+mv /tmp/config.json.tmp /etc/shadowsocks-rust/config.json
+
 # create a tun device if not exist
 # allow passing device to ensure compatibility with Podman
 if [ ! -e /dev/net/tun ]; then
