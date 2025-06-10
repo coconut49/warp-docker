@@ -76,4 +76,4 @@ if [ -n "$WARP_ENABLE_NAT" ]; then
 fi
 
 # start the proxy
-gost $GOST_ARGS
+shadowsocks-go $SSGO_ARGS

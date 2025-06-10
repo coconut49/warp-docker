@@ -3,8 +3,8 @@ name: Build and publish Docker image
 on:
   workflow_dispatch:
     inputs:
-      GOST_VERSION:
-        description: "Version of gost. If empty, the latest version will be used."
+      SSGO_VERSION:
+        description: "Version of shadowsocks-go. If empty, the latest version will be used."
         required: false
         type: string
 
@@ -30,21 +30,21 @@ jobs:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Get gost version
-        id: get-gost-version
+      - name: Get shadowsocks-go version
+        id: get-ssgo-version
         run: |
-          if [ -z "${{ github.event.inputs.GOST_VERSION }}" ]; then
-            echo "GOST_VERSION=$(curl -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -s https://api.github.com/repos/ginuerzh/gost/releases/latest | jq -r '.tag_name' | cut -c 2-)" >> "$GITHUB_OUTPUT"
+          if [ -z "${{ github.event.inputs.SSGO_VERSION }}" ]; then
+            echo "SSGO_VERSION=$(curl -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -s https://api.github.com/repos/database64128/shadowsocks-go/releases/latest | jq -r '.tag_name' | cut -c 2-)" >> "$GITHUB_OUTPUT"
           else
-            echo "GOST_VERSION=${{ github.event.inputs.GOST_VERSION }}" >> "$GITHUB_OUTPUT"
+            echo "SSGO_VERSION=${{ github.event.inputs.SSGO_VERSION }}" >> "$GITHUB_OUTPUT"
           fi
 
-      # gost version must be <number>.<number>.<number>
-      - name: Verify gost version
-        id: verify-gost-version
+      # shadowsocks-go version must be <number>.<number>.<number>
+      - name: Verify shadowsocks-go version
+        id: verify-ssgo-version
         run: |
-          if [[ ! "${{ steps.get-gost-version.outputs.GOST_VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid gost version: ${{ steps.get-gost-version.outputs.GOST_VERSION }}"
+          if [[ ! "${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid shadowsocks-go version: ${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}"
             exit 1
           fi
 
@@ -60,7 +60,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            GOST_VERSION=${{ steps.get-gost-version.outputs.GOST_VERSION }}
+            SSGO_VERSION=${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}
             WARP_VERSION=${{ steps.get-warp-client-version.outputs.WARP_VERSION }}
             COMMIT_SHA=${{ github.sha }}
           context: .
@@ -68,5 +68,5 @@ jobs:
           push: true
           tags: |
             ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}:latest
-            ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-gost-version.outputs.GOST_VERSION }}
-            ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-gost-version.outputs.GOST_VERSION }}-${{ github.sha }}
+            ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}
+            ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get-warp-client-version.outputs.WARP_VERSION }}-${{ steps.get-ssgo-version.outputs.SSGO_VERSION }}-${{ github.sha }}
