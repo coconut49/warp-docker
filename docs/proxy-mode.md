@@ -23,7 +23,7 @@ exit 0
 ```
 
 Update the `docker-compose.yml` file:
-1. set env `SSGO_ARGS` to `--confPath /etc/shadowsocks-go/config.json`
+1. set env `SSR_ARGS` to `--config /etc/shadowsocks-rust/config.json`
 2. mount new healthcheck to `/healthcheck/connected-to-warp.sh`:
 
 For example, the default `docker-compose.yml` file will be changed to:
@@ -43,7 +43,7 @@ services:
       - "1080:1080"
     environment:
       - WARP_SLEEP=2
-      - SSGO_ARGS=--confPath /etc/shadowsocks-go/config.json
+      - SSR_ARGS=--config /etc/shadowsocks-rust/config.json
       # - WARP_LICENSE_KEY= # optional
     cap_add:
       # Docker already have them, these are for podman users
