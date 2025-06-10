@@ -8,13 +8,14 @@ LABEL org.opencontainers.image.url="https://github.com/cmj2002/warp-docker"
 COPY entrypoint.sh /entrypoint.sh
 COPY ./healthcheck /healthcheck
 
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y curl gnupg lsb-release sudo jq ipcalc zstd && \
+    apt-get upgrade -y --no-install-recommends && \
+    apt-get install -y --no-install-recommends curl gnupg lsb-release sudo jq ipcalc zstd && \
     curl https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflare-client.list && \
     apt-get update && \
-    apt-get install -y cloudflare-warp && \
+    apt-get install -y --no-install-recommends cloudflare-warp && \
     apt-get clean && apt-get autoremove -y && \
     chmod +x /entrypoint.sh && \
     chmod +x /healthcheck/index.sh && \
