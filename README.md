@@ -82,21 +82,16 @@ You can also use the `latest` tag to use the latest version of the image.
 > You can access the image built by a certain commit by using the tag `{WARP_VERSION}-{SSGO_VERSION}-{COMMIT_SHA}`. Not all commits have images built.
 
 > [!NOTE]
-> Not all version combinations are available. Do check [the list of tags in Docker Hub](https://hub.docker.com/r/caomingjun/warp/tags) before you use one. If the version you want is not available, you can [build your own image](#build).
+> Not all version combinations are available. Check the list of tags in the GitHub Container Registry before you use one. If the version you want is not available, you can [build your own image](#build).
 
 ## Build
 
-You can use Github Actions to build the image yourself.
+You can use GitHub Actions to build the image yourself.
 
 1. Fork this repository.
-2. Create necessary variables and secrets in the repository settings:
-   1. variable `REGISTRY`: for example, `docker.io` (Docker Hub)
-   2. variable `IMAGE_NAME`: for example, `caomingjun/warp`
-   3. variable `DOCKER_USERNAME`: for example, `caomingjun`
-   4. secret `DOCKER_PASSWORD`: generate a token in Docker Hub and fill in the token
-3. Manually trigger the workflow `Build and push image` in the Actions tab.
+2. Manually trigger the workflow `Build and push image` in the **Actions** tab.
 
-This will build the image with the latest version of WARP client and shadowsocks-go and push it to the specified registry. You can also specify the version of shadowsocks-go by giving input to the workflow. Building image with custom WARP client version is not supported yet.
+The workflow will build the image with the latest version of the WARP client and shadowsocks-go and push it to your fork's GitHub Container Registry. You can also specify the version of shadowsocks-go by providing input to the workflow. Building with a custom WARP client version is not supported yet.
 
 If you want to build the image locally, you can use [`.github/workflows/build-publish.yml`](.github/workflows/build-publish.yml) as a reference.
 
