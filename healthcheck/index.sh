@@ -11,8 +11,7 @@ bash $DIR/connected-to-warp.sh
 # apply host connectivity fixes when enabled
 if [ -n "$BETA_FIX_HOST_CONNECTIVITY" ]; then
     bash $DIR/fix-host-connectivity.sh
-    bash $DIR/fix-source-routing.sh
 fi
 
-# always ensure public port is accessible
+# always ensure container ports are publicly accessible
 bash $DIR/fix-public-access.sh

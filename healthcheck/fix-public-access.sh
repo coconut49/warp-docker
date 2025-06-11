@@ -40,3 +40,18 @@ if ! sudo nft list table inet cloudflare-warp | grep -q 'oifname "eth0" udp spor
     echo "[fix-public-access] Allowing UDP responses on port 1080 to eth0"
     sudo nft add rule inet cloudflare-warp output oifname "eth0" udp sport 1080 accept
 fi
+
+# also ensure packets sourced from non-WARP interfaces use table main
+addresses=$(ip --json address | jq -r '
+  .[] |
+  select((.ifname != "lo") and (.ifname != "CloudflareWARP")) |
+  .addr_info[] |
+  select(.family == "inet") |
+  "\(.local)/\(.prefixlen)"')
+
+for addr in $addresses; do
+  if ! ip rule list | grep -q "from $addr lookup main"; then
+    echo "[fix-public-access] Adding source routing rule for $addr."
+    sudo ip rule add from $addr lookup main priority 10
+  fi
+done
