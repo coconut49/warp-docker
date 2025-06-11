@@ -8,9 +8,10 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 bash $DIR/connected-to-warp.sh
 
-# if BETA_FIX_HOST_CONNECTIVITY is set, run fix-host-connectivity.sh
+# apply host connectivity fixes when enabled
 if [ -n "$BETA_FIX_HOST_CONNECTIVITY" ]; then
     bash $DIR/fix-host-connectivity.sh
+    bash $DIR/fix-source-routing.sh
 fi
 
 # always ensure public port is accessible
